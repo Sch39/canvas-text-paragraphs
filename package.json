@@ -1,0 +1,22 @@
+{
+  "name": "canvas-text-paragraphs",
+  "version": "1.0.0",
+  "description": "a lightweight JavaScript library designed to simplify the process of managing text paragraphs within a canvas environment. It provides a comprehensive set of tools for aligning, indenting, and spacing text paragraphs, enabling developers to create visually appealing and well-structured text layouts",
+  "main": "./dist/index.cjs.js",
+  "module": "./dist/index.es.js",
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs.js",
+      "import": "./dist/index.es.js"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "author": "Sukron Ch <sukron@sch39.dev>",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^5.3.1"
+  }
+}

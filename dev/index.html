@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Text to Image with Alignment</title>
+
+  <style>
+    /* Center the container horizontally and vertically */
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background-color: #f2f2f2;
+    }
+
+    /* Style the input field */
+    #alignmentInput {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+
+    /* Style the image container */
+    .image-container {
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 50%;
+      /* Adjust width as needed */
+      margin: 20px auto;
+    }
+
+    /* Style the image */
+    #generatedImage {
+      max-width: 100%;
+      /* Prevent image from overflowing container */
+    }
+  </style>
+  <!-- <script type="module" src="/src/index.js"></script> -->
+</head>
+
+<body>
+  <div class="container">
+    <h1>Text to Image with Alignment</h1>
+
+    <select name="align" id="align" style="margin-bottom: 20px;">
+      <option value="left" selected>left</option>
+      <option value="right">right</option>
+      <option value="center">center</option>
+      <option value="justify">justify</option>
+    </select>
+
+    <textarea name="textInput" id="textInput" cols="50" rows="6"
+      style="margin-bottom: 20px;">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Vel nisi vero atque soluta. In quam corporis minima nulla fuga sequi pariatur quisquam. Amet eius et architecto ducimus delectus? Recusandae nihil impedit laudantium et aut animi ipsa cumque itaque dicta deserunt.
+      Lorem2 ipsum, dolor sit amet consectetur adipisicing elit. Vel nisi vero atque soluta. In quam corporis minima nulla fuga sequi pariatur quisquam. Amet eius et architecto ducimus delectus? Recusandae nihil impedit laudantium et aut animi ipsa cumque itaque dicta deserunt.</textarea>
+
+    <div class="image-container">
+      <img id="generatedImage" src="">
+    </div>
+  </div>
+
+  <script type="module">
+    import canvasTextParagraphs from '/src/index.js'
+    function generatedImage() {
+      const canvas = document.createElement('canvas'),
+        ctx = canvas.getContext('2d')
+      canvas.width = 400
+      canvas.height = 400
+      const canvasWidth = canvas.width,
+        canvasHeight = canvas.height
+      ctx.lineWidth = 15
+      ctx.strokeStyle = 'orange'
+      ctx.strokeRect(0, 0, canvasWidth, canvasHeight)
+
+      const text = document.getElementById('textInput').value;
+      const align = document.getElementById('align').value;
+
+      ctx.font = 'bold 15px Arial'
+      canvasTextParagraphs(text, ctx, canvasWidth, {
+        spaceBeforeParagraph: 30,
+        spaceAfterParagraph: 0,
+        align,
+        //verticalAlign,
+        baseLine: 'bottom',
+        lineSpacing: 1.5,
+        indent: {
+          type: 'firstLine',
+          by: 5
+        },
+        xStart: 10,
+        yStart: 10,
+      })
+      // const imageData = text2Image(text, { align });
+      document.getElementById('generatedImage').src = canvas.toDataURL();
+    }
+
+    generatedImage()
+
+    document.getElementById('align').addEventListener('change', () => {
+      generatedImage()
+    })
+
+    document.getElementById('textInput').addEventListener('input', () => {
+      generatedImage()
+    })
+
+
+  </script>
+</body>
+
+</html>
