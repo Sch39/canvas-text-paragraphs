@@ -23,7 +23,7 @@ function checkArrayValue(arr, inputValue, errorMessage) {
   }
 }
 
-function wrapText(text, ctx, maxWidth, indentType, indentWidth) {
+function wrapText(text, ctx, xStart, maxWidth, indentType, indentWidth, align) {
   const words = text.split(' ')
   let lines = [],
     currentLine = '';
@@ -31,42 +31,46 @@ function wrapText(text, ctx, maxWidth, indentType, indentWidth) {
   for (const word of words) {
     let testLine = currentLine + word + ' ',
       testWidth = ctx.measureText(testLine).width;
+    // if (align === 'right') {
+
+    // } else {
     if (indentType === 'firstLine' && lines.length === 0) {
       testWidth += indentWidth
     } else if (indentType === 'hanging' && lines.length !== 0) {
       testWidth += indentWidth
     }
+    // }
+    testWidth += xStart
 
     if (testWidth > maxWidth && currentLine.length > 0) {
-      lines.push(currentLine);
+      lines.push(currentLine.trim());
       currentLine = word + ' '
     } else {
       currentLine = testLine
     }
     //latest line
   }
-  lines.push(currentLine)
+  lines.push(currentLine.trim())
 
   return lines;
 }
 
 function drawParagraphs(dataParagraphs, ctx) {
   for (const paragraph of dataParagraphs.paragraphs) {
-    let x = dataParagraphs.xStart
     for (const line of paragraph.lines) {
-      drawAlignedText(ctx, line.text, x + line.x, line.y, dataParagraphs.width - x, line.align)
+      drawAlignedText(ctx, line.text, line.x + dataParagraphs.xStart, line.y, dataParagraphs.width, line.align)
     }
   }
   console.log(dataParagraphs);
 }
 
-export default function canvasTextParagraphs(text, ctx, width, options = {}) {
+export default function canvasTextParagraphs(text, ctx, options = {}) {
   validateString(text, 'Invalid text')
   isCanvasContext(ctx)
-  validateNumber(width, 'Invalid width')
 
   const defaultOptions = {
     height: 'auto',
+    width: 'auto',
     baseLine: 'top',
     xStart: 0,
     yStart: 0,
@@ -104,19 +108,22 @@ export default function canvasTextParagraphs(text, ctx, width, options = {}) {
   validateNumber(mergedOptions.yStart, 'Invalid yStart')
 
   try {
+    validateNumber(mergedOptions.width, 'Invalid width')
+  } catch (error) {
+    if (mergedOptions.width !== 'auto') {
+      throw new Error('Invalid width')
+    }
+  }
+
+  try {
     validateNumber(mergedOptions.height, 'Invalid height')
   } catch (error) {
     if (mergedOptions.height !== 'auto') {
       throw new Error('Invalid height')
     }
   }
-  // try {
   validateNumber(mergedOptions.indent.by, 'Invalid indent.by')
-  // } catch (error) {
-  //   if (mergedOptions.indent.by !== null) {
-  //     throw new Error('Invalid indent.by')
-  //   }
-  // }
+
   try {
     validateNumber(mergedOptions.lineSpacing, 'Invalid lineSpacing')
   } catch (error) {
@@ -125,6 +132,14 @@ export default function canvasTextParagraphs(text, ctx, width, options = {}) {
     }
   }
 
+  let width = ctx.canvas.width,
+    height = ctx.canvas.height
+  if (mergedOptions.width !== 'auto') {
+    width = mergedOptions.width
+  }
+  if (mergedOptions.height !== 'auto') {
+    height = mergedOptions.height
+  }
 
   const paragraphs = text.split('\n')
 
@@ -137,15 +152,13 @@ export default function canvasTextParagraphs(text, ctx, width, options = {}) {
   if (mergedOptions.lineSpacing !== 'auto') {
     lineHeight *= mergedOptions.lineSpacing
   }
-  // if user input xStart
-  width -= mergedOptions.xStart
 
   const dataParagraphs = {
     paragraphs: [],
     xStart: mergedOptions.xStart,
     yStart: mergedOptions.yStart,
     width,
-    height: mergedOptions.height,
+    height,
     vAlign: mergedOptions.verticalAlign,
   }
 
@@ -176,7 +189,7 @@ export default function canvasTextParagraphs(text, ctx, width, options = {}) {
     y += mergedOptions.spaceBeforeParagraph
     data.yStart = y
     // const words = paragraphTrimmed.split(' ')
-    const lines = wrapText(paragraphTrimmed, ctx, dataParagraphs.width, mergedOptions.indent.type, indentWidth)
+    const lines = wrapText(paragraphTrimmed, ctx, dataParagraphs.xStart, dataParagraphs.width, mergedOptions.indent.type, indentWidth, mergedOptions.align)
 
     for (let j = 0; j < lines.length; j++) {
       const line = lines[j];
@@ -206,6 +219,64 @@ export default function canvasTextParagraphs(text, ctx, width, options = {}) {
     data.yEnd = y
     dataParagraphs.paragraphs.push(data)
   }
+  //last yEnd of lates paragraph
+  let paragraphsHeight = dataParagraphs.paragraphs[dataParagraphs.paragraphs.length - 1].yEnd,
+    heightSpace = 0
 
-  drawParagraphs(dataParagraphs, ctx)
+  if (mergedOptions.verticalAlign === 'middle') {
+    heightSpace = (dataParagraphs.height - paragraphsHeight) / 2
+  } else if (mergedOptions.verticalAlign === 'bottom') {
+    heightSpace = (dataParagraphs.height - paragraphsHeight)
+  }
+
+  // Draw
+  for (const paragraph of dataParagraphs.paragraphs) {
+    let lineCounter = 0
+    for (const line of paragraph.lines) {
+      const metrics = ctx.measureText(line.text);
+      const align = line.align
+      let x = dataParagraphs.xStart,
+        yText = line.y,
+        xText = line.x
+      if (yText + heightSpace <= dataParagraphs.height) {
+        if (align === 'left') {
+          x += xText
+        } else if (align === 'center') {
+          const widthSpace = (dataParagraphs.width - x - metrics.width) / 2
+          if (xText > widthSpace) {
+            x += xText;
+          } else {
+            x += widthSpace
+          }
+        } else if (align === 'right') {
+          const widthSpace = dataParagraphs.width - metrics.width
+          if (widthSpace > x + xText) {
+            x = widthSpace;
+          } else {
+            x += xText
+          }
+        } else if (align === 'justify') {
+          const words = line.text.split(' ')
+          const spaceWidth = ((dataParagraphs.width - x - xText) - metrics.width + ctx.measureText(' ').width * (words.length - 1)) / (words.length - 1)
+          let currentX = x + xText
+
+          words.forEach((word, index) => {
+            ctx.fillText(word, currentX, yText + heightSpace)
+            if (index < words.length - 1) {
+              currentX += ctx.measureText(word).width + spaceWidth;
+            }
+          });
+          continue;
+        }
+        lineCounter++
+        // console.log(x);
+        // Draw text for left, center, and right alignment
+        ctx.fillText(line.text, x, yText + heightSpace);
+      }
+    }
+  }
+
+  console.log(dataParagraphs);
+
+  // drawParagraphs(dataParagraphs, ctx)
 }

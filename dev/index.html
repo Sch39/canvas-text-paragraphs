@@ -56,14 +56,14 @@
       <option value="justify">justify</option>
     </select>
 
-    <textarea name="textInput" id="textInput" cols="50" rows="6"
-      style="margin-bottom: 20px;">Lorem ipsum, dolor sit amet consectetur adipisicing elit. Vel nisi vero atque soluta. In quam corporis minima nulla fuga sequi pariatur quisquam. Amet eius et architecto ducimus delectus? Recusandae nihil impedit laudantium et aut animi ipsa cumque itaque dicta deserunt.
-      Lorem2 ipsum, dolor sit amet consectetur adipisicing elit. Vel nisi vero atque soluta. In quam corporis minima nulla fuga sequi pariatur quisquam. Amet eius et architecto ducimus delectus? Recusandae nihil impedit laudantium et aut animi ipsa cumque itaque dicta deserunt.</textarea>
+    <textarea name="textInput" id="textInput" cols="50" rows="6" style="margin-bottom: 20px;">The Mercedes-AMG GT R is a high-performance sports car produced by Mercedes-AMG, the performance and tuning subsidiary of Mercedes-Benz. Introduced in 2016, the GT R is part of the AMG GT lineup, designed to deliver an exhilarating driving experience both on the road and the track. 
+      What sets the Mercedes-AMG GT R apart is its advanced engineering and aerodynamic design. </textarea>
 
     <div class="image-container">
       <img id="generatedImage" src="">
     </div>
   </div>
+
 
   <script type="module">
     import canvasTextParagraphs from '/src/index.js'
@@ -82,18 +82,20 @@
       const align = document.getElementById('align').value;
 
       ctx.font = 'bold 15px Arial'
-      canvasTextParagraphs(text, ctx, canvasWidth, {
+      canvasTextParagraphs(text, ctx, {
         spaceBeforeParagraph: 30,
         spaceAfterParagraph: 0,
+        height: 100,
+        //width: 400,
+        verticalAlign: 'bottom',
         align,
-        //verticalAlign,
         baseLine: 'bottom',
         lineSpacing: 1.5,
         indent: {
           type: 'firstLine',
-          by: 5
+          by: 20
         },
-        xStart: 10,
+        xStart: 50,
         yStart: 10,
       })
       // const imageData = text2Image(text, { align });
@@ -109,7 +111,6 @@
     document.getElementById('textInput').addEventListener('input', () => {
       generatedImage()
     })
-
 
   </script>
 </body>

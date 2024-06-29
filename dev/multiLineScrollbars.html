@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MultiLineScrollbar</title>
+</head>
+
+<body>
+  <canvas id="myCanvas" width="400" height="100"></canvas>
+
+  <script>
+    const canvas = document.getElementById('myCanvas');
+    const ctx = canvas.getContext('2d');
+    const text = "Long text that exceeds the height of the canvas. " +
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. " +
+      "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. " +
+      "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris " +
+      "nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in " +
+      "reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. " +
+      "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia " +
+      "deserunt mollit anim id est laborum."; // Your long text here
+    const canvasHeight = canvas.height;
+    let scrollPosition = 0;
+    let targetScrollPosition = 0;
+    let scrollEaseFactor = 0.1; // Lower value means smoother scrolling
+    let isDragging = false;
+    let scrollBarY = 0;
+    let scrollBarHeight = 50; // Height of the scrollbar
+
+    function drawScrollableText(ctx, text, canvasWidth, canvasHeight, scrollPosition, lineHeight = 20) {
+      const paragraphs = text.split('\n');
+      let y = 10;
+
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight); // Clear canvas before drawing
+
+      ctx.fillStyle = 'black'; // Set text color before drawing text
+      paragraphs.forEach(paragraph => {
+        const lines = wrapText(paragraph, ctx, canvasWidth, 'none', 0);
+        lines.forEach(line => {
+          if (y + lineHeight > scrollPosition && y < scrollPosition + canvasHeight) {
+            ctx.fillText(line, 0, y - scrollPosition);
+          }
+          y += lineHeight;
+        });
+      });
+
+      drawScrollbar(ctx, canvasWidth, canvasHeight);
+    }
+
+    function wrapText(text, ctx, maxWidth, indentType, indentWidth) {
+      const words = text.split(' ');
+      let lines = [];
+      let currentLine = '';
+
+      for (const word of words) {
+        let testLine = currentLine + word + ' ';
+        let testWidth = ctx.measureText(testLine).width;
+
+        if (testWidth > maxWidth && currentLine.length > 0) {
+          lines.push(currentLine.trim());
+          currentLine = word + ' ';
+        } else {
+          currentLine = testLine;
+        }
+      }
+      lines.push(currentLine.trim());
+
+      return lines;
+    }
+
+    function drawScrollbar(ctx, canvasWidth, canvasHeight) {
+      const scrollBarWidth = 10; // Width of the scrollbar
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.2)'; // Background of the scrollbar area
+      ctx.fillRect(canvasWidth - scrollBarWidth, 0, scrollBarWidth, canvasHeight);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.6)'; // Scrollbar itself
+      ctx.fillRect(canvasWidth - scrollBarWidth, scrollBarY, scrollBarWidth, scrollBarHeight);
+    }
+
+    function render() {
+      drawScrollableText(ctx, text, canvas.width, canvasHeight, scrollPosition);
+    }
+
+    function easeScroll() {
+      const maxScrollPosition = calculateTotalTextHeight(ctx, text, canvas.width) - canvasHeight;
+      scrollPosition += (targetScrollPosition - scrollPosition) * scrollEaseFactor;
+      scrollPosition = Math.min(Math.max(0, scrollPosition), maxScrollPosition);
+
+      const maxScrollBarY = canvasHeight - scrollBarHeight;
+      scrollBarY = (scrollPosition / maxScrollPosition) * maxScrollBarY;
+      render();
+
+      requestAnimationFrame(easeScroll);
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+      const scrollBarWidth = 10; // Width of the scrollbar
+      if (e.offsetX > canvas.width - scrollBarWidth) {
+        if (e.offsetY >= scrollBarY && e.offsetY <= scrollBarY + scrollBarHeight) {
+          isDragging = true;
+        }
+      }
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (isDragging) {
+        const scrollBarWidth = 10; // Width of the scrollbar
+        const maxScrollBarY = canvasHeight - scrollBarHeight;
+        scrollBarY = Math.min(Math.max(0, e.offsetY - scrollBarHeight / 2), maxScrollBarY);
+
+        const maxScrollPosition = calculateTotalTextHeight(ctx, text, canvas.width) - canvasHeight;
+        targetScrollPosition = (scrollBarY / maxScrollBarY) * maxScrollPosition;
+        render();
+      }
+    });
+
+    canvas.addEventListener('mouseup', () => {
+      isDragging = false;
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      isDragging = false;
+    });
+
+    canvas.addEventListener('wheel', (e) => {
+      e.preventDefault(); // Prevent default scroll action
+
+      const delta = e.deltaY;
+      const maxScrollPosition = calculateTotalTextHeight(ctx, text, canvas.width) - canvasHeight;
+
+      targetScrollPosition += delta;
+      targetScrollPosition = Math.min(Math.max(0, targetScrollPosition), maxScrollPosition);
+    });
+
+    function calculateTotalTextHeight(ctx, text, canvasWidth, lineHeight = 20) {
+      const paragraphs = text.split('\n');
+      let totalHeight = 0;
+
+      paragraphs.forEach(paragraph => {
+        const lines = wrapText(paragraph, ctx, canvasWidth, 'none', 0);
+        totalHeight += lines.length * lineHeight;
+      });
+
+      return totalHeight;
+    }
+
+    requestAnimationFrame(easeScroll);
+  </script>
+</body>
+
+</html>
