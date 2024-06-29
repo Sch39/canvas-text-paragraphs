@@ -85,9 +85,9 @@
       canvasTextParagraphs(text, ctx, {
         spaceBeforeParagraph: 30,
         spaceAfterParagraph: 0,
-        height: 100,
+        //height: 200,
         //width: 400,
-        verticalAlign: 'bottom',
+        verticalAlign: 'middle',
         align,
         baseLine: 'bottom',
         lineSpacing: 1.5,
@@ -96,7 +96,7 @@
           by: 20
         },
         xStart: 50,
-        yStart: 10,
+        yStart: 20,
       })
       // const imageData = text2Image(text, { align });
       document.getElementById('generatedImage').src = canvas.toDataURL();
