@@ -10,6 +10,11 @@
       "import": "./dist/index.es.js"
     }
   },
+  "files": [
+    "README.md",
+    "LICENSE",
+    "dist"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build"
@@ -18,5 +23,9 @@
   "license": "MIT",
   "devDependencies": {
     "vite": "^5.3.1"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/Sch39/canvas-text-paragraphs/issues"
+  },
+  "homepage": "https://github.com/Sch39/canvas-text-paragraphs#readme"
 }
