@@ -6,6 +6,10 @@ You can install Canvas Text Paragraphs via npm:
 ```
 npm install @sch39/canvas-text-paragraphs
 ```
+or from unpkg
+```
+<script src="https://unpkg.com/@sch39/canvas-text-paragraphs@latest/dist/index.umd.js"></script>
+```
 
 ## Usage
 ### Importing the Library

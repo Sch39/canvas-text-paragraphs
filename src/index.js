@@ -25,4 +25,20 @@
 
 import canvasTextParagraphs from "./core/canvasTextParagraphs";
 
+// UMD Module Definition
+(function(root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD
+    define([], factory);
+  } else if (typeof module === 'object' && module.exports) {
+    // CommonJS
+    module.exports = factory();
+  } else {
+    // Global (browser)
+    root.canvasTextParagraphs = factory();
+  }
+}(typeof self !== 'undefined' ? self : this, function() {
+  return canvasTextParagraphs;
+}));
+
 export default canvasTextParagraphs

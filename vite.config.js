@@ -11,6 +11,9 @@ export default defineConfig({
       formats: ['cjs', 'es', 'umd']
     },
     rollupOptions: {
+      output: {
+        globals: {}
+      }
     },
     sourcemap: true,
     emptyOutDir: true,
