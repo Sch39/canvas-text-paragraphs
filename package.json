@@ -24,6 +24,21 @@
   "devDependencies": {
     "vite": "^5.3.1"
   },
+  "keywords": [
+    "canvas",
+    "text",
+    "paragraphs",
+    "javascript",
+    "library",
+    "alignment",
+    "indentation",
+    "spacing",
+    "text-layout",
+    "web-development",
+    "frontend",
+    "drawing",
+    "graphics"
+  ],
   "bugs": {
     "url": "https://github.com/Sch39/canvas-text-paragraphs/issues"
   },
