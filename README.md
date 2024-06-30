@@ -35,6 +35,7 @@ canvasTextParagraphs(text, ctx, {
     by: 40,
   },
 });
+
 ```
 
 ## Function Parameter
