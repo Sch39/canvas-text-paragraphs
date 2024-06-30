@@ -4,17 +4,17 @@ Canvas Text Paragraphs is a JavaScript library designed to facilitate the render
 ## Installation
 You can install Canvas Text Paragraphs via npm:
 ```
-npm install canvas-text-paragraphs
+npm install @sch39/canvas-text-paragraphs
 ```
 
 ## Usage
 ### Importing the Library
 ```
-import canvasTextParagraphs from 'canvas-text-paragraphs'
+import canvasTextParagraphs from '@sch39/canvas-text-paragraphs'
 ```
 ### Example
 ```
-import canvasTextParagraphs from 'canvas-text-paragraphs';
+import canvasTextParagraphs from '@sch39/canvas-text-paragraphs';
 
 const canvas = document.getElementById('myCanvas');
 const ctx = canvas.getContext('2d');

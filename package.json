@@ -1,5 +1,5 @@
 {
-  "name": "canvas-text-paragraphs",
+  "name": "@sch39/canvas-text-paragraphs",
   "version": "1.0.0",
   "description": "a lightweight JavaScript library designed to simplify the process of managing text paragraphs within a canvas environment. It provides a comprehensive set of tools for aligning, indenting, and spacing text paragraphs, enabling developers to create visually appealing and well-structured text layouts",
   "main": "./dist/index.cjs.js",
@@ -27,5 +27,9 @@
   "bugs": {
     "url": "https://github.com/Sch39/canvas-text-paragraphs/issues"
   },
-  "homepage": "https://github.com/Sch39/canvas-text-paragraphs#readme"
+  "homepage": "https://github.com/Sch39/canvas-text-paragraphs#readme",
+  "repository": {
+    "type": "git",
+    "directory": "https://github.com/Sch39/canvas-text-paragraphs.git"
+  }
 }
