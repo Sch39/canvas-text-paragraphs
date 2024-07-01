@@ -49,6 +49,8 @@ canvasTextParagraphs(text, ctx, {
 * **options** (object): Optional configuration object with the following properties:
   * **width** (number, default: 'auto'): Width of the paragraph area.
   * **height** (number, default: 'auto'): Height of the  paragraph area.
+  * **xStart** (number, default: 0): starting position of the paragraph on the x axis
+  * **yStart** (number, default: 0): starting position of the paragraph on the y axis
   * **align** (string, default: 'left'): Horizontal text alignment ('left', 'center', 'right', 'justify').
   * **verticalAlign** (string, default: 'top'): Vertical text alignment ('top', 'middle', 'bottom').
   * **baseLine** (string, default: 'top'): Text baseline alignment ('top', 'hanging', 'middle', 'alphabetic', 'ideographic', 'bottom').
