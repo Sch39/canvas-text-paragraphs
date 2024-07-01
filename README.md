@@ -43,6 +43,9 @@ canvasTextParagraphs(text, ctx, {
 
 ```
 
+## Demo
+Link: [Click here](https://sch39.dev/apps/libs/@sch39/canvas-text-paragraphs/demo)
+
 ## Function Parameter
 * **text** (string): The text content to be rendered.
 * **ctx** (CanvasRenderingContext2D): The canvas rendering context.
