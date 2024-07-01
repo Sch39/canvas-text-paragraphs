@@ -45,6 +45,7 @@ canvasTextParagraphs(text, ctx, {
 
 ## Demo
 Link: [Click here](https://sch39.dev/apps/libs/@sch39/canvas-text-paragraphs/demo)
+
 Live Demo: [Click here](https://codepen.io/sch39/pen/abrgPEM)
 
 ## Function Parameter
