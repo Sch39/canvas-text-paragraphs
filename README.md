@@ -44,7 +44,7 @@ canvasTextParagraphs(text, ctx, {
 ```
 
 ## Demo
-Link: [Click here](https://sch39.dev/apps/libs/@sch39/canvas-text-paragraphs/demo)
+Link: [Click here](https://codepen.io/editor/sch39/pen/01a19811-e040-763d-8fdb-abfe9b42480c)
 
 Live Demo: [Click here](https://codepen.io/sch39/pen/abrgPEM)
 
