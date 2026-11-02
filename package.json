@@ -17,12 +17,14 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "test": "vitest run"
   },
   "author": "Sukron Ch <sukron@sch39.dev>",
   "license": "MIT",
   "devDependencies": {
-    "vite": "^5.3.1"
+    "vite": "^5.3.1",
+    "vitest": "^2.1.9"
   },
   "keywords": [
     "canvas",

@@ -18,4 +18,9 @@ export default defineConfig({
     sourcemap: true,
     emptyOutDir: true,
   },
+  test: {
+    environment: 'node',
+    include: ['tests/**/*.test.js'],
+    setupFiles: ['tests/setup.js'],
+  },
 })
