@@ -9,7 +9,7 @@ import { drawLine } from "../utils/textUtils";
 export function renderLines(layout, ctx) {
   for (const paragraph of layout.paragraphs) {
     for (const line of paragraph.lines) {
-      drawLine(line, ctx, layout.xStart, layout.height, layout.width, layout.heightSpace)
+      drawLine(line, ctx, layout, layout.heightSpace)
     }
   }
 }

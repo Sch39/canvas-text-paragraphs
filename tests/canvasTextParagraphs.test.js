@@ -200,9 +200,9 @@ describe('word wrap trailing space (regression CTP-8)', () => {
     ])
   })
 
-  it('counts xStart: exact fit at width 100 with xStart 10', () => {
-    expect(run('aaaa bbbb', { width: 100, xStart: 10 }).calls).toEqual([{ text: 'aaaa bbbb', x: 10, y: 0 }])
-    expect(run('aaaa bbbb', { width: 99, xStart: 10 }).calls).toHaveLength(2)
+  it('width is the box width, independent of xStart (v2)', () => {
+    expect(run('aaaa bbbb', { width: 90, xStart: 10 }).calls).toEqual([{ text: 'aaaa bbbb', x: 10, y: 0 }])
+    expect(run('aaaa bbbb', { width: 89, xStart: 10 }).calls).toHaveLength(2)
   })
 
   it('firstLine indent counts: 90px + 20px indent fits exactly at width 110', () => {
@@ -266,5 +266,57 @@ describe('canvas state isolation (regression CTP-9)', () => {
     expect(() => canvasTextParagraphs('a', ctx, { align: 'x' })).toThrow('Invalid Align')
     expect(ctx.saveCount).toBe(0)
     expect(ctx.textBaseline).toBe('alphabetic')
+  })
+})
+
+
+describe('text box semantics (CTP-10, v2.0.0)', () => {
+  // box = [20, 120] x [10, 60]; one line 'aaaa' = 40px wide, LINE_HEIGHT 11
+  const box = { xStart: 20, yStart: 10, width: 100, height: 50 }
+  const X = { left: 20, center: 50, right: 80, justify: 20 }
+  const Y = { top: 10, middle: 10 + (50 - LINE_HEIGHT) / 2, bottom: 10 + 50 - LINE_HEIGHT }
+
+  const aligns = ['left', 'center', 'right', 'justify']
+  const vAligns = ['top', 'middle', 'bottom']
+  const combos = aligns.flatMap((a) => vAligns.map((v) => [a, v]))
+
+  it.each(combos)('align %s x verticalAlign %s lands inside the box', (align, verticalAlign) => {
+    const ctx = run('aaaa', { ...box, align, verticalAlign })
+    expect(ctx.calls).toEqual([{ text: 'aaaa', x: X[align], y: Y[verticalAlign] }])
+  })
+
+  it('justify: last char of a full line ends at the right edge of the box', () => {
+    const ctx = run('aaaa bbbb cccc', { ...box, align: 'justify' })
+    expect(ctx.calls).toEqual([
+      { text: 'aaaa', x: 20, y: 10 },
+      { text: 'bbbb', x: 80, y: 10 },
+      { text: 'cccc', x: 20, y: 10 + LINE_HEIGHT },
+    ])
+    expect(80 + 40).toBe(box.xStart + box.width)
+  })
+
+  it('right align with indent stays inside the box', () => {
+    const ctx = run('aaaa', { ...box, align: 'right', indent: { type: 'firstLine', by: 2 } })
+    expect(ctx.calls).toEqual([{ text: 'aaaa', x: 80, y: 10 }])
+  })
+
+  it("'auto' width/height is the rest of the canvas from xStart/yStart", () => {
+    // canvas 200x100 -> box width 150 (right align), height 80 (bottom align)
+    const ctx = run('aaaa', { xStart: 50, yStart: 20, align: 'right', verticalAlign: 'bottom' })
+    expect(ctx.calls).toEqual([{ text: 'aaaa', x: 50 + 150 - 40, y: 20 + 80 - LINE_HEIGHT }])
+  })
+
+  it('does not draw lines below yStart + height', () => {
+    // lines at y 10, 21, 32; bottom edge 30 (a line is drawn when its top <= edge)
+    const ctx = run('a\nb\nc', { xStart: 0, yStart: 10, height: 20 })
+    expect(ctx.calls.map((c) => c.text)).toEqual(['a', 'b'])
+  })
+
+  it('wraps at the box width regardless of xStart', () => {
+    const ctx = run('aaaa bbbb cccc', { ...box, width: 90 })
+    expect(ctx.calls).toEqual([
+      { text: 'aaaa bbbb', x: 20, y: 10 },
+      { text: 'cccc', x: 20, y: 10 + LINE_HEIGHT },
+    ])
   })
 })

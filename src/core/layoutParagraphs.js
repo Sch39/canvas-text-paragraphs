@@ -8,17 +8,13 @@ import { wrapText } from "../utils/textUtils";
  * @param {string} text - Text to lay out (paragraphs separated by `\n`).
  * @param {CanvasRenderingContext2D} ctx - Context used for measuring.
  * @param {object} mergedOptions - Output of `normalizeOptions`.
- * @returns {{paragraphs: Array, xStart: number, yStart: number, width: number, height: number, vAlign: string, heightSpace: number}}
+ * @returns {{paragraphs: Array, xStart: number, yStart: number, width: number (box width), height: number (box height), vAlign: string, heightSpace: number}}
  */
 export function layoutParagraphs(text, ctx, mergedOptions) {
-  let width = ctx.canvas.width,
-    height = ctx.canvas.height
-  if (mergedOptions.width !== 'auto') {
-    width = mergedOptions.width
-  }
-  if (mergedOptions.height !== 'auto') {
-    height = mergedOptions.height
-  }
+  // Text box = [xStart, xStart + width] x [yStart, yStart + height].
+  // 'auto' means the rest of the canvas from xStart / yStart.
+  const width = mergedOptions.width === 'auto' ? ctx.canvas.width - mergedOptions.xStart : mergedOptions.width,
+    height = mergedOptions.height === 'auto' ? ctx.canvas.height - mergedOptions.yStart : mergedOptions.height
 
   const paragraphs = text.split('\n')
 
@@ -65,7 +61,7 @@ export function layoutParagraphs(text, ctx, mergedOptions) {
     }
     y += mergedOptions.spaceBeforeParagraph
     data.yStart = y
-    const lines = wrapText(paragraphTrimmed, ctx, dataParagraphs.xStart, dataParagraphs.width, mergedOptions.indent.type, indentWidth)
+    const lines = wrapText(paragraphTrimmed, ctx, dataParagraphs.width, mergedOptions.indent.type, indentWidth)
 
     for (let j = 0; j < lines.length; j++) {
       const line = lines[j];
@@ -93,8 +89,8 @@ export function layoutParagraphs(text, ctx, mergedOptions) {
     data.yEnd = y
     dataParagraphs.paragraphs.push(data)
   }
-  //latest yEnd of lates paragraph
-  let paragraphsHeight = dataParagraphs.paragraphs[dataParagraphs.paragraphs.length - 1].yEnd,
+  // content height = latest yEnd of latest paragraph, relative to the box top
+  let paragraphsHeight = dataParagraphs.paragraphs[dataParagraphs.paragraphs.length - 1].yEnd - dataParagraphs.yStart,
     heightSpace = 0
 
   if (mergedOptions.verticalAlign === 'middle') {

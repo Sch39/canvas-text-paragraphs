@@ -52,10 +52,10 @@ Live Demo: [Click here](https://codepen.io/sch39/pen/abrgPEM)
 * **text** (string): The text content to be rendered.
 * **ctx** (CanvasRenderingContext2D): The canvas rendering context.
 * **options** (object): Optional configuration object with the following properties:
-  * **width** (number, default: 'auto'): Width of the paragraph area.
-  * **height** (number, default: 'auto'): Height of the  paragraph area.
-  * **xStart** (number, default: 0): starting position of the paragraph on the x axis
-  * **yStart** (number, default: 0): starting position of the paragraph on the y axis
+  * **width** (number or 'auto', default: 'auto'): Width of the text box. `'auto'` = the rest of the canvas from `xStart`.
+  * **height** (number or 'auto', default: 'auto'): Height of the text box. `'auto'` = the rest of the canvas from `yStart`. Lines that fall below `yStart + height` are not drawn.
+  * **xStart** (number, default: 0): Left edge of the text box.
+  * **yStart** (number, default: 0): Top edge of the text box.
   * **align** (string, default: 'left'): Horizontal text alignment ('left', 'center', 'right', 'justify').
   * **verticalAlign** (string, default: 'top'): Vertical text alignment ('top', 'middle', 'bottom').
   * **baseLine** (string, default: 'top'): Text baseline alignment ('top', 'hanging', 'middle', 'alphabetic', 'ideographic', 'bottom').
@@ -65,6 +65,26 @@ Live Demo: [Click here](https://codepen.io/sch39/pen/abrgPEM)
   * **indent** (object):
     * **type** (string, default: 'none'): Type of indentation ('none', 'firstLine', 'hanging').
     * **by** (number, default: 0): Indentation amount in pixels.
+
+The text box is `[xStart, xStart + width] x [yStart, yStart + height]`. Word wrap, `align`, `indent` and `verticalAlign` are all computed inside this box.
+
+## Migrasi dari 1.x
+
+In 2.0.0, `width` and `height` are the **size** of the text box. In 1.x they were the absolute right/bottom edge (`xStart + size`).
+
+* If `xStart` and `yStart` are `0` (or omitted), nothing changes.
+* If you set `xStart`/`yStart` together with `width`/`height`, subtract the start from the old value:
+
+```js
+// 1.x: right edge at x = 300, bottom edge at y = 200
+canvasTextParagraphs(text, ctx, { xStart: 50, yStart: 20, width: 300, height: 200 })
+
+// 2.0.0: same box
+canvasTextParagraphs(text, ctx, { xStart: 50, yStart: 20, width: 250, height: 180 })
+```
+
+* `'auto'` still fills the canvas, now measured from `xStart`/`yStart`.
+* `verticalAlign: 'middle' | 'bottom'` now centers/bottoms inside the box, not relative to the canvas origin.
 
 ## License
 

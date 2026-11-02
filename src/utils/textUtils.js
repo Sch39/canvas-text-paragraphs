@@ -1,4 +1,4 @@
-export function wrapText(text, ctx, xStart, maxWidth, indentType, indentWidth) {
+export function wrapText(text, ctx, maxWidth, indentType, indentWidth) {
   const words = text.split(' ')
   let lines = [],
     currentLine = '';
@@ -12,7 +12,6 @@ export function wrapText(text, ctx, xStart, maxWidth, indentType, indentWidth) {
     } else if (indentType === 'hanging' && lines.length !== 0) {
       testWidth += indentWidth
     }
-    testWidth += xStart
 
     if (testWidth > maxWidth && currentLine.length > 0) {
       lines.push(currentLine.trim());
@@ -27,32 +26,29 @@ export function wrapText(text, ctx, xStart, maxWidth, indentType, indentWidth) {
   return lines;
 }
 
-export function drawLine(lineObj, ctx, xStart, maxHeight, maxWidth, heightSpace) {
+/**
+ * Draws one laid-out line inside the text box.
+ * Box = [xStart, xStart + width] x [yStart, yStart + height]; line.y is absolute.
+ */
+export function drawLine(lineObj, ctx, box, heightSpace) {
+  const { xStart, yStart, width, height } = box
   const metrics = ctx.measureText(lineObj.text);
   const align = lineObj.align
   let x = xStart,
     yText = lineObj.y,
     xText = lineObj.x
-  if (yText + heightSpace <= maxHeight) {
+  if (yText + heightSpace <= yStart + height) {
     if (align === 'left') {
       x += xText
     } else if (align === 'center') {
-      const widthSpace = (maxWidth - x - metrics.width) / 2
-      if (xText > widthSpace) {
-        x += xText;
-      } else {
-        x += widthSpace
-      }
+      const widthSpace = (width - metrics.width) / 2
+      x += Math.max(xText, widthSpace)
     } else if (align === 'right') {
-      const widthSpace = maxWidth - metrics.width
-      if (widthSpace > x + xText) {
-        x = widthSpace;
-      } else {
-        x += xText
-      }
+      const widthSpace = width - metrics.width
+      x += Math.max(xText, widthSpace)
     } else if (align === 'justify') {
       const words = lineObj.text.split(' ')
-      const spaceWidth = ((maxWidth - x - xText) - metrics.width + ctx.measureText(' ').width * (words.length - 1)) / (words.length - 1)
+      const spaceWidth = ((width - xText) - metrics.width + ctx.measureText(' ').width * (words.length - 1)) / (words.length - 1)
       let currentX = x + xText
 
       words.forEach((word, index) => {
