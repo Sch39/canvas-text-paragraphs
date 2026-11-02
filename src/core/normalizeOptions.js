@@ -1,4 +1,4 @@
-import { validateNumber, checkArrayValue } from "../utils/validators";
+import { validateNumber, validateNumberOrAuto, checkArrayValue } from "../utils/validators";
 
 const defaultOptions = {
   height: 'auto',
@@ -29,6 +29,26 @@ const validBaseLine = [
   validIndentType = ['none', 'firstLine', 'hanging'],
   validVerticalAlign = ['top', 'middle', 'bottom']
 
+const oneOf = (allowed, value, message) => checkArrayValue(allowed, value, message)
+const number = (_, value, message) => validateNumber(value, message)
+const numberOrAuto = (_, value, message) => validateNumberOrAuto(value, message)
+
+// [check, getValue, errorMessage, allowedValues]
+const rules = [
+  [oneOf, (o) => o.baseLine, 'Invalid Baseline', validBaseLine],
+  [oneOf, (o) => o.align, 'Invalid Align', validAlign],
+  [oneOf, (o) => o.indent.type, 'Invalid indent.type', validIndentType],
+  [oneOf, (o) => o.verticalAlign, 'Invalid verticalAlign', validVerticalAlign],
+  [number, (o) => o.spaceBeforeParagraph, 'Invalid spaceBeforeParagraph'],
+  [number, (o) => o.spaceAfterParagraph, 'Invalid spaceAfterParagraph'],
+  [number, (o) => o.xStart, 'Invalid xStart'],
+  [number, (o) => o.yStart, 'Invalid yStart'],
+  [numberOrAuto, (o) => o.width, 'Invalid width'],
+  [numberOrAuto, (o) => o.height, 'Invalid height'],
+  [number, (o) => o.indent.by, 'Invalid indent.by'],
+  [numberOrAuto, (o) => o.lineSpacing, 'Invalid lineSpacing'],
+]
+
 /**
  * Merges user options with defaults (shallow merge) and validates them.
  * Throws `Error('Invalid <option>')` on invalid values.
@@ -39,39 +59,9 @@ const validBaseLine = [
 export function normalizeOptions(options = {}) {
   const mergedOptions = { ...defaultOptions, ...options }
 
-  checkArrayValue(validBaseLine, mergedOptions.baseLine, 'Invalid Baseline')
-  checkArrayValue(validAlign, mergedOptions.align, 'Invalid Align')
-  checkArrayValue(validIndentType, mergedOptions.indent.type, 'Invalid indent.type')
-  checkArrayValue(validVerticalAlign, mergedOptions.verticalAlign, 'Invalid verticalAlign')
-
-  validateNumber(mergedOptions.spaceBeforeParagraph, 'Invalid spaceBeforeParagraph')
-  validateNumber(mergedOptions.spaceAfterParagraph, 'Invalid spaceAfterParagraph')
-  validateNumber(mergedOptions.xStart, 'Invalid xStart')
-  validateNumber(mergedOptions.yStart, 'Invalid yStart')
-
-  try {
-    validateNumber(mergedOptions.width, 'Invalid width')
-  } catch (error) {
-    if (mergedOptions.width !== 'auto') {
-      throw new Error('Invalid width')
-    }
-  }
-
-  try {
-    validateNumber(mergedOptions.height, 'Invalid height')
-  } catch (error) {
-    if (mergedOptions.height !== 'auto') {
-      throw new Error('Invalid height')
-    }
-  }
-  validateNumber(mergedOptions.indent.by, 'Invalid indent.by')
-
-  try {
-    validateNumber(mergedOptions.lineSpacing, 'Invalid lineSpacing')
-  } catch (error) {
-    if (mergedOptions.lineSpacing !== 'auto') {
-      throw new Error('Invalid lineSpacing')
-    }
+  // Order matters: when several options are invalid, the first rule that fails is reported.
+  for (const [check, getValue, message, allowed] of rules) {
+    check(allowed, getValue(mergedOptions), message)
   }
 
   return mergedOptions

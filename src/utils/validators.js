@@ -3,6 +3,11 @@ export function validateNumber(input, errorMessage) {
     throw new Error(errorMessage)
   }
 }
+export function validateNumberOrAuto(input, errorMessage) {
+  if (typeof input !== 'number' && input !== 'auto') {
+    throw new Error(errorMessage)
+  }
+}
 export function validateString(input, errorMessage) {
   if (typeof input !== 'string') {
     throw new Error(errorMessage)
