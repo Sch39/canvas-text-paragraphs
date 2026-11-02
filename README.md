@@ -10,6 +10,7 @@ or from unpkg
 ```
 <script src="https://unpkg.com/@sch39/canvas-text-paragraphs@latest/dist/index.umd.js"></script>
 ```
+The script exposes the global function `canvasTextParagraphs`.
 
 ## Usage
 ### Importing the Library
