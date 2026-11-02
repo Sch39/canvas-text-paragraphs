@@ -57,7 +57,12 @@ const rules = [
  * @returns {object} The merged and validated options.
  */
 export function normalizeOptions(options = {}) {
-  const mergedOptions = { ...defaultOptions, ...options }
+  const mergedOptions = {
+    ...defaultOptions,
+    ...options,
+    // indent is merged deeply so a partial object keeps the remaining defaults
+    indent: { ...defaultOptions.indent, ...options.indent },
+  }
 
   // Order matters: when several options are invalid, the first rule that fails is reported.
   for (const [check, getValue, message, allowed] of rules) {

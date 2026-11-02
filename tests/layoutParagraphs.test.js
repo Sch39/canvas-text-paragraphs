@@ -42,6 +42,21 @@ describe('normalizeOptions', () => {
     expect(normalizeOptions()).toMatchObject({ align: 'left', width: 'auto', indent: { type: 'none', by: 0 } })
   })
 
+  it('deep-merges indent with defaults', () => {
+    expect(normalizeOptions({ indent: { type: 'firstLine' } }).indent).toEqual({ type: 'firstLine', by: 0 })
+    expect(normalizeOptions({ indent: { by: 20 } }).indent).toEqual({ type: 'none', by: 20 })
+  })
+
+  it('still rejects a non-number indent.by', () => {
+    expect(() => normalizeOptions({ indent: { type: 'firstLine', by: '2' } })).toThrow('Invalid indent.by')
+    expect(() => normalizeOptions({ indent: { by: null } })).toThrow('Invalid indent.by')
+  })
+
+  it('does not mutate the default indent between calls', () => {
+    normalizeOptions({ indent: { type: 'hanging', by: 5 } })
+    expect(normalizeOptions().indent).toEqual({ type: 'none', by: 0 })
+  })
+
   it('throws on invalid options', () => {
     expect(() => normalizeOptions({ align: 'x' })).toThrow('Invalid Align')
   })

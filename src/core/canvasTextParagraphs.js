@@ -20,7 +20,7 @@ import { renderLines } from "./renderLines";
  * @param {number} [options.spaceBeforeParagraph=0] - The space before each paragraph in pixels.
  * @param {number} [options.spaceAfterParagraph=0] - The space after each paragraph in pixels.
  * @param {number|string} [options.lineSpacing='auto'] - The spacing between lines of text. Can be a number or 'auto'.
- * @param {object} [options.indent={}] - Configuration for text indentation.
+ * @param {object} [options.indent={}] - Configuration for text indentation. Merged with the defaults, so a partial object (e.g. only `type`) keeps the other defaults.
  * @param {string} [options.indent.type='none'] - The type of indentation. Valid values are 'none', 'firstLine', 'hanging'.
  * @param {number} [options.indent.by=0] - The number of spaces to indent.
  * 

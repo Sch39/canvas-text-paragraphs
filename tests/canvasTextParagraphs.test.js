@@ -166,7 +166,21 @@ describe('validation errors', () => {
     expect(call({ width: 'auto', height: 'auto', lineSpacing: 'auto' })).not.toThrow()
   })
 
-  it('[KNOWN ISSUE] indent without `by` throws (shallow merge drops default by)', () => {
-    expect(call({ indent: { type: 'firstLine' } })).toThrow('Invalid indent.by')
+  it('indent without `by` uses default by = 0 (deep merge)', () => {
+    expect(call({ indent: { type: 'firstLine' } })).not.toThrow()
+  })
+})
+
+describe('indent deep merge (regression CTP-7)', () => {
+  it('firstLine without `by` renders like by = 0', () => {
+    const a = run('aaaa bbbb', { indent: { type: 'firstLine' } })
+    const b = run('aaaa bbbb', { indent: { type: 'firstLine', by: 0 } })
+    expect(a.calls).toEqual(b.calls)
+    expect(a.calls).toEqual([{ text: 'aaaa bbbb', x: 0, y: 0 }])
+  })
+
+  it('indent with only `by` behaves as type none', () => {
+    const ctx = run('aaaa bbbb cccc', { width: 100, indent: { by: 20 } })
+    expect(ctx.calls).toEqual(run('aaaa bbbb cccc', { width: 100 }).calls)
   })
 })
