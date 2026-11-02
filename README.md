@@ -79,14 +79,30 @@ Live Demo: [Click here](https://codepen.io/sch39/pen/abrgPEM)
   * **baseLine** (string, default: 'top'): Text baseline alignment ('top', 'hanging', 'middle', 'alphabetic', 'ideographic', 'bottom').
   * **spaceBeforeParagraph** (number, default: 0): Space before each paragraph.
   * **spaceAfterParagraph** (number, default: 0): Space after each paragraph.
-  * **lineSpacing** (number or string, default: 'auto'): Line spacing factor or 'auto' for automatic spacing.
-  * **indent** (object):
+  * **lineSpacing** (number or 'auto', default: 'auto'): Line spacing factor (multiplies the line height), or `'auto'` for automatic spacing.
+  * **indent** (object): Merged with the defaults, so you can pass only the keys you need (e.g. `{ type: 'firstLine' }` uses `by: 0`, `{ by: 4 }` uses `type: 'none'`).
     * **type** (string, default: 'none'): Type of indentation ('none', 'firstLine', 'hanging').
-    * **by** (number, default: 0): Indentation amount in pixels.
+    * **by** (number, default: 0): Indentation amount, as a number of space characters in the current font.
 
 The text box is `[xStart, xStart + width] x [yStart, yStart + height]`. Word wrap, `align`, `indent` and `verticalAlign` are all computed inside this box.
 
-## Migrasi dari 1.x
+### Behavior notes
+* Paragraphs are separated by `\n`. Each paragraph is trimmed and wrapped word by word; a word wider than `width` is not split and overflows the box.
+* The last line of a paragraph is never justified (it is drawn left-aligned).
+* The canvas state is isolated: `textBaseline` and `textAlign` are set while drawing and restored afterwards, so your own values are left unchanged. Set `ctx.font` and `ctx.fillStyle` before calling.
+
+### Errors
+Invalid input throws an `Error` with the message `Invalid <name>`, for example `Invalid text`, `Invalid ctx`, `Invalid Align`, `Invalid width` or `Invalid indent.by`. `ctx` must be a `CanvasRenderingContext2D`.
+
+## Development
+```
+npm install
+npm test        # vitest
+npm run build   # dist/ (cjs, es, umd)
+npm run dev     # vite dev server
+```
+
+## Migrating from 1.x
 
 In 2.0.0, `width` and `height` are the **size** of the text box. In 1.x they were the absolute right/bottom edge (`xStart + size`).
 
@@ -103,6 +119,13 @@ canvasTextParagraphs(text, ctx, { xStart: 50, yStart: 20, width: 250, height: 18
 
 * `'auto'` still fills the canvas, now measured from `xStart`/`yStart`.
 * `verticalAlign: 'middle' | 'bottom'` now centers/bottoms inside the box, not relative to the canvas origin.
+
+Other behavior changes since 1.1.0:
+
+* A line that fits the box width exactly is no longer wrapped early (the trailing space is no longer measured), so line breaks can differ slightly from 1.x.
+* `indent` is merged with its defaults; `{ type: 'firstLine' }` without `by` no longer throws.
+* `textBaseline` and `textAlign` of your context are restored after each call.
+* The UMD build exposes only the global `canvasTextParagraphs`, and the ES build can now be imported where `self` is undefined (Node, SSR).
 
 ## License
 

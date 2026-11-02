@@ -50,6 +50,6 @@
   "homepage": "https://github.com/Sch39/canvas-text-paragraphs#readme",
   "repository": {
     "type": "git",
-    "directory": "https://github.com/Sch39/canvas-text-paragraphs.git"
+    "url": "git+https://github.com/Sch39/canvas-text-paragraphs.git"
   }
 }
