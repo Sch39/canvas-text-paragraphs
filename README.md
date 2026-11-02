@@ -44,6 +44,23 @@ canvasTextParagraphs(text, ctx, {
 
 ```
 
+### TypeScript
+Type definitions are bundled (`index.d.ts`), no `@types` package needed:
+```ts
+import canvasTextParagraphs from '@sch39/canvas-text-paragraphs'
+import type { Options } from '@sch39/canvas-text-paragraphs'
+
+const ctx = (document.getElementById('myCanvas') as HTMLCanvasElement).getContext('2d')!
+
+const options: Options = {
+  width: 400,
+  align: 'justify',
+  indent: { type: 'firstLine', by: 4 },
+}
+
+canvasTextParagraphs('Hello world', ctx, options)
+```
+
 ## Demo
 Link: [Click here](https://codepen.io/editor/sch39/pen/01a19811-e040-763d-8fdb-abfe9b42480c)
 
