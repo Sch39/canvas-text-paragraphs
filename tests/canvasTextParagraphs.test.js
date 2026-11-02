@@ -184,3 +184,39 @@ describe('indent deep merge (regression CTP-7)', () => {
     expect(ctx.calls).toEqual(run('aaaa bbbb cccc', { width: 100 }).calls)
   })
 })
+
+describe('word wrap trailing space (regression CTP-8)', () => {
+  // 'aaaa bbbb' measures 90px (9 chars x 10px)
+  it('keeps a line that fits exactly the max width', () => {
+    const ctx = run('aaaa bbbb', { width: 90 })
+    expect(ctx.calls).toEqual([{ text: 'aaaa bbbb', x: 0, y: 0 }])
+  })
+
+  it('still wraps when the line is 1px too wide', () => {
+    const ctx = run('aaaa bbbb', { width: 89 })
+    expect(ctx.calls).toEqual([
+      { text: 'aaaa', x: 0, y: 0 },
+      { text: 'bbbb', x: 0, y: LINE_HEIGHT },
+    ])
+  })
+
+  it('counts xStart: exact fit at width 100 with xStart 10', () => {
+    expect(run('aaaa bbbb', { width: 100, xStart: 10 }).calls).toEqual([{ text: 'aaaa bbbb', x: 10, y: 0 }])
+    expect(run('aaaa bbbb', { width: 99, xStart: 10 }).calls).toHaveLength(2)
+  })
+
+  it('firstLine indent counts: 90px + 20px indent fits exactly at width 110', () => {
+    const indent = { type: 'firstLine', by: 2 }
+    expect(run('aaaa bbbb', { width: 110, indent }).calls).toEqual([{ text: 'aaaa bbbb', x: 20, y: 0 }])
+    expect(run('aaaa bbbb', { width: 109, indent }).calls).toHaveLength(2)
+  })
+
+  it('hanging indent counts on following lines: second line 80px + 10px indent fits exactly at width 90', () => {
+    const indent = { type: 'hanging', by: 1 }
+    expect(run('aaaa bbbb cc dd ee', { width: 90, indent }).calls).toEqual([
+      { text: 'aaaa bbbb', x: 0, y: 0 },
+      { text: 'cc dd ee', x: 10, y: LINE_HEIGHT },
+    ])
+    expect(run('aaaa bbbb cc dd ee', { width: 89, indent }).calls.length).toBeGreaterThan(2)
+  })
+})

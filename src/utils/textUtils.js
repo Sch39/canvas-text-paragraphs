@@ -5,7 +5,8 @@ export function wrapText(text, ctx, xStart, maxWidth, indentType, indentWidth) {
 
   for (const word of words) {
     let testLine = currentLine + word + ' ',
-      testWidth = ctx.measureText(testLine).width;
+      // measure without the trailing space so a line that fits exactly is not wrapped
+      testWidth = ctx.measureText(testLine.trimEnd()).width;
     if (indentType === 'firstLine' && lines.length === 0) {
       testWidth += indentWidth
     } else if (indentType === 'hanging' && lines.length !== 0) {
