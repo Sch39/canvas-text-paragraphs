@@ -53,9 +53,16 @@ export default function canvasTextParagraphs(text, ctx, options = {}) {
 
   const mergedOptions = normalizeOptions(options)
 
-  // ctx processing
-  ctx.textBaseline = mergedOptions.baseLine
+  // Isolate canvas state: the caller's textBaseline/textAlign are restored afterwards
+  ctx.save()
+  try {
+    ctx.textBaseline = mergedOptions.baseLine
+    // drawing positions are computed for left-aligned text
+    ctx.textAlign = 'left'
 
-  const layout = layoutParagraphs(text, ctx, mergedOptions)
-  renderLines(layout, ctx)
+    const layout = layoutParagraphs(text, ctx, mergedOptions)
+    renderLines(layout, ctx)
+  } finally {
+    ctx.restore()
+  }
 }

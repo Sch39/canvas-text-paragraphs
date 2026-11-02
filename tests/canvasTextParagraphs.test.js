@@ -122,9 +122,9 @@ describe('position, baseline and clipping', () => {
     expect(ctx.calls).toEqual([{ text: 'aaaa', x: 5, y: 7 }])
   })
 
-  it('sets ctx.textBaseline and does not restore it', () => {
+  it('applies baseLine while drawing', () => {
     const ctx = run('a', { baseLine: 'middle' })
-    expect(ctx.textBaseline).toBe('middle')
+    expect(ctx.stateAtDraw.map((s) => s.textBaseline)).toEqual(['middle'])
   })
 
   it('does not draw lines that fall below height', () => {
@@ -218,5 +218,53 @@ describe('word wrap trailing space (regression CTP-8)', () => {
       { text: 'cc dd ee', x: 10, y: LINE_HEIGHT },
     ])
     expect(run('aaaa bbbb cc dd ee', { width: 89, indent }).calls.length).toBeGreaterThan(2)
+  })
+})
+
+describe('canvas state isolation (regression CTP-9)', () => {
+  it("restores the caller's textBaseline and textAlign", () => {
+    const ctx = createMockContext()
+    ctx.textBaseline = 'bottom'
+    ctx.textAlign = 'center'
+    canvasTextParagraphs('aaaa bbbb', ctx, { baseLine: 'middle', width: 50 })
+    expect(ctx.textBaseline).toBe('bottom')
+    expect(ctx.textAlign).toBe('center')
+    expect(ctx.saveCount).toBe(1)
+    expect(ctx.restoreCount).toBe(1)
+  })
+
+  it("renders the same when the caller used textAlign = 'center'", () => {
+    const base = createMockContext()
+    const centered = createMockContext()
+    centered.textAlign = 'center'
+    canvasTextParagraphs('aaaa bbbb cccc', base, { width: 100, align: 'right' })
+    canvasTextParagraphs('aaaa bbbb cccc', centered, { width: 100, align: 'right' })
+    expect(centered.calls).toEqual(base.calls)
+  })
+
+  it('draws and measures with textAlign = left', () => {
+    const ctx = createMockContext()
+    ctx.textAlign = 'right'
+    canvasTextParagraphs('aaaa bbbb', ctx, { width: 50 })
+    expect(ctx.stateAtDraw.every((s) => s.textAlign === 'left')).toBe(true)
+    expect(ctx.stateAtMeasure.every((s) => s.textAlign === 'left')).toBe(true)
+  })
+
+  it('restores state even when an error is thrown while drawing', () => {
+    const ctx = createMockContext()
+    ctx.textBaseline = 'bottom'
+    ctx.textAlign = 'center'
+    ctx.fillText = () => { throw new Error('boom') }
+    expect(() => canvasTextParagraphs('a', ctx, { baseLine: 'middle' })).toThrow('boom')
+    expect(ctx.textBaseline).toBe('bottom')
+    expect(ctx.textAlign).toBe('center')
+    expect(ctx.restoreCount).toBe(1)
+  })
+
+  it('does not touch ctx state when validation fails', () => {
+    const ctx = createMockContext()
+    expect(() => canvasTextParagraphs('a', ctx, { align: 'x' })).toThrow('Invalid Align')
+    expect(ctx.saveCount).toBe(0)
+    expect(ctx.textBaseline).toBe('alphabetic')
   })
 })
